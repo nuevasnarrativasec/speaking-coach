@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speaking Coach · Práctica de inglés</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#171e2e; --panel2:#1e2740; --line:#2a3550;
+    --txt:#e8edf7; --muted:#9aa7c2; --accent:#5b8cff; --accent2:#7c5bff;
+    --good:#3ddc84; --bad:#ff6b6b; --warn:#ffcc55; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 20% -10%,#1b2540 0%,var(--bg) 55%);color:var(--txt);min-height:100vh}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 18px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  header h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.2px}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:20px}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 20px 50px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:0 0 12px}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:180px}
+  .key-row{display:flex;gap:10px;align-items:flex-end}
+  .key-row>div{flex:1}
+  button{cursor:pointer;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;
+    padding:11px 18px;transition:.15s;color:#fff}
+  .btn{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+  .btn.rec{background:linear-gradient(135deg,#ff5b6b,#ff3b6b)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .reader{font-size:22px;line-height:1.7;background:var(--panel2);border-radius:12px;padding:20px;
+    border:1px solid var(--line);min-height:90px}
+  .reader .w{padding:1px 2px;border-radius:4px;transition:.1s}
+  .w.good{color:var(--good)}
+  .w.bad{color:var(--bad);text-decoration:underline;text-decoration-color:var(--bad);text-underline-offset:3px}
+  .w.miss{color:var(--warn);text-decoration:line-through;text-decoration-color:var(--warn)}
+  .controls{display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
+  .pulse{width:11px;height:11px;border-radius:50%;background:var(--bad);display:inline-block;
+    animation:pulse 1s infinite;margin-right:7px}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .metrics{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+  .metric{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .metric .n{font-size:26px;font-weight:800}
+  .metric .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+  .feedback{white-space:pre-wrap;line-height:1.6;font-size:14.5px}
+  .feedback h3{color:var(--accent);font-size:14px;margin:16px 0 6px}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;
+    padding:4px 12px;font-size:12.5px;color:var(--muted);margin:0 6px 6px 0;cursor:pointer}
+  .pill.on{border-color:var(--accent);color:var(--txt)}
+  .legend{font-size:12.5px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap}
+  .legend b{font-weight:600}
+  .hidden{display:none}
+  .status{font-size:13px;color:var(--muted);min-height:18px}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);
+    border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  audio{width:100%;margin-top:12px}
+  .small{font-size:12px;color:var(--muted)}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">🎙️</div>
+    <h1>Speaking Coach</h1>
+  </header>
+  <p class="sub">Lee en voz alta, graba, y recibe corrección de pronunciación con IA — a tu ritmo.</p>
+
+  <!-- API KEY -->
+  <div class="card">
+    <h2>🔑 Configuración</h2>
+    <div class="key-row">
+      <div>
+        <label>OpenAI API Key (se guarda solo en tu navegador)</label>
+        <input id="apiKey" type="password" placeholder="sk-...">
+      </div>
+      <button class="btn ghost" id="saveKey">Guardar</button>
+    </div>
+    <p class="small" id="keyStatus" style="margin:8px 0 0"></p>
+  </div>
+
+  <!-- TEXTO -->
+  <div class="card">
+    <h2>📖 Texto para practicar</h2>
+    <div class="row" style="margin-bottom:12px">
+      <div>
+        <label>Nivel</label>
+        <select id="level">
+          <option value="all">Todos</option>
+          <option value="Principiante">Principiante</option>
+          <option value="Intermedio">Intermedio</option>
+          <option value="Avanzado">Avanzado</option>
+        </select>
+      </div>
+      <div>
+        <label>Texto</label>
+        <select id="textPick"></select>
+      </div>
+    </div>
+    <div class="reader" id="reader"></div>
+    <div class="legend">
+      <span><b style="color:var(--good)">■</b> bien pronunciada</span>
+      <span><b style="color:var(--bad)">■</b> mejorar</span>
+      <span><b style="color:var(--warn)">■</b> omitida / poco clara</span>
+    </div>
+  </div>
+
+  <!-- GRABAR -->
+  <div class="card">
+    <h2>🎤 Tu lectura</h2>
+    <div class="controls">
+      <button class="btn rec" id="recBtn">● Grabar</button>
+      <button class="btn" id="analyzeBtn" disabled>Analizar pronunciación</button>
+      <span class="status" id="recStatus"></span>
+    </div>
+    <audio id="player" controls class="hidden"></audio>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="card hidden" id="results">
+    <h2>📊 Resultados</h2>
+    <div class="metrics">
+      <div class="metric"><div class="n" id="mAcc">—</div><div class="l">Precisión</div></div>
+      <div class="metric"><div class="n" id="mWpm">—</div><div class="l">Palabras/min</div></div>
+      <div class="metric"><div class="n" id="mPace">—</div><div class="l">Ritmo</div></div>
+    </div>
+    <div style="margin-top:16px">
+      <label>Lo que escuchó la IA (transcripción de tu audio):</label>
+      <div class="reader" id="heard" style="font-size:15px;min-height:auto"></div>
+    </div>
+    <div class="feedback" id="coach" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Biblioteca de textos ---------- */
+const LIBRARY = [
+  {level:"Principiante", title:"My Morning", text:"Every morning I wake up early. I drink a cup of coffee and read the news. Then I take a shower and get dressed. I like to walk to work because the fresh air makes me feel awake and happy."},
+  {level:"Principiante", title:"The Weather", text:"Today the weather is beautiful. The sky is blue and the sun is warm. There are a few white clouds in the sky. I think it is a perfect day to go outside and enjoy the park with my friends."},
+  {level:"Principiante", title:"A Simple Recipe", text:"Making a sandwich is very easy. First, take two slices of bread. Then add some cheese, tomato and lettuce. You can also add a little salt and pepper. Finally, cut the sandwich in half and enjoy your meal."},
+  {level:"Intermedio", title:"Learning a Language", text:"Learning a new language is a rewarding challenge. It requires patience, practice and a willingness to make mistakes. Every conversation, even a short one, builds your confidence. The secret is consistency: a little effort each day matters far more than occasional long sessions."},
+  {level:"Intermedio", title:"The Power of Habits", text:"Small habits shape our lives in surprising ways. When we repeat an action daily, it gradually becomes automatic and effortless. The trick is to start with something so simple that it feels almost impossible to fail, and then let the routine grow naturally over time."},
+  {level:"Intermedio", title:"City Life", text:"Living in a big city can be both exciting and exhausting. There is always something happening, from concerts and exhibitions to crowded markets full of unusual food. However, the constant noise and rush can make people long for a quiet weekend in the countryside."},
+  {level:"Avanzado", title:"Technology and Society", text:"The rapid acceleration of technology has fundamentally reshaped how we communicate, work and perceive the world around us. While these innovations offer unprecedented convenience, they also raise profound questions about privacy, attention and the subtle ways algorithms influence our everyday decisions."},
+  {level:"Avanzado", title:"On Curiosity", text:"Curiosity is arguably the most underrated engine of human progress. It compels us to question comfortable assumptions, to venture beyond the boundaries of what is familiar, and to embrace uncertainty as an opportunity rather than a threat. Without it, knowledge stagnates and imagination withers."},
+  {level:"Avanzado", title:"The Art of Listening", text:"Genuine listening is a remarkably rare skill. It demands that we temporarily suspend our own thoughts, resist the urge to formulate a reply, and remain fully present with another person. Paradoxically, by speaking less and attending more, we often understand far more than we ever could through words alone."}
+];
+
+/* ---------- Estado ---------- */
+let mediaRecorder=null, chunks=[], audioBlob=null, recStart=0, recDuration=0;
+const $=id=>document.getElementById(id);
+
+/* ---------- API key ---------- */
+(function(){ const k=localStorage.getItem('oai_key'); if(k){$('apiKey').value=k; $('keyStatus').textContent='✓ Clave guardada.';} })();
+$('saveKey').onclick=()=>{
+  const v=$('apiKey').value.trim();
+  if(!v){$('keyStatus').textContent='Pega tu clave primero.';return;}
+  localStorage.setItem('oai_key',v); $('keyStatus').textContent='✓ Clave guardada en este navegador.';
+};
+
+/* ---------- Poblar biblioteca ---------- */
+function refreshTexts(){
+  const lvl=$('level').value; const pick=$('textPick'); pick.innerHTML='';
+  LIBRARY.filter(t=>lvl==='all'||t.level===lvl).forEach((t,i)=>{
+    const idx=LIBRARY.indexOf(t);
+    const o=document.createElement('option'); o.value=idx; o.textContent=`${t.title} · ${t.level}`; pick.appendChild(o);
+  });
+  loadText();
+}
+function loadText(){
+  const t=LIBRARY[+$('textPick').value];
+  const words=t.text.split(/\s+/);
+  $('reader').innerHTML=words.map((w,i)=>`<span class="w" data-i="${i}">${w}</span>`).join(' ');
+  $('results').classList.add('hidden'); resetHighlights();
+}
+$('level').onchange=refreshTexts; $('textPick').onchange=loadText;
+refreshTexts();
+
+function currentTargetWords(){ return LIBRARY[+$('textPick').value].text.split(/\s+/); }
+function resetHighlights(){ document.querySelectorAll('#reader .w').forEach(s=>s.className='w'); }
+
+/* ---------- Grabación ---------- */
+$('recBtn').onclick=async ()=>{
+  if(mediaRecorder && mediaRecorder.state==='recording'){
+    mediaRecorder.stop(); return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder=new MediaRecorder(stream); chunks=[];
+    mediaRecorder.ondataavailable=e=>chunks.push(e.data);
+    mediaRecorder.onstop=()=>{
+      recDuration=(Date.now()-recStart)/1000;
+      audioBlob=new Blob(chunks,{type:'audio/webm'});
+      $('player').src=URL.createObjectURL(audioBlob); $('player').classList.remove('hidden');
+      $('analyzeBtn').disabled=false;
+      $('recBtn').innerHTML='● Grabar otra vez';
+      $('recStatus').innerHTML='✓ Grabación lista ('+recDuration.toFixed(1)+'s)';
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    mediaRecorder.start(); recStart=Date.now();
+    $('recBtn').innerHTML='■ Detener';
+    $('recStatus').innerHTML='<span class="pulse"></span>Grabando… lee el texto en voz alta.';
+    $('analyzeBtn').disabled=true;
+  }catch(e){ $('recStatus').textContent='No pude acceder al micrófono: '+e.message; }
+};
+
+/* ---------- Normalización y diff ---------- */
+function norm(w){ return w.toLowerCase().replace(/[^a-z'áéíóúñ]/gi,''); }
+
+// Alineación LCS entre target (ref) e hipótesis (hyp); marca cada palabra ref
+function alignWords(refWords, hypWords){
+  const R=refWords.map(norm), H=hypWords.map(norm);
+  const n=R.length,m=H.length;
+  const dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)
+    dp[i][j]=R[i-1]===H[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  const matched=new Array(n).fill(false);
+  let i=n,j=m;
+  while(i>0&&j>0){
+    if(R[i-1]===H[j-1]){matched[i-1]=true;i--;j--;}
+    else if(dp[i-1][j]>=dp[i][j-1])i--; else j--;
+  }
+  return matched; // true = pronunciada correctamente
+}
+
+/* ---------- Analizar ---------- */
+$('analyzeBtn').onclick=async ()=>{
+  const key=localStorage.getItem('oai_key');
+  if(!key){$('recStatus').textContent='Guarda tu API key primero.';return;}
+  if(!audioBlob){return;}
+  $('analyzeBtn').disabled=true;
+  $('recStatus').innerHTML='<span class="spin"></span>Transcribiendo tu audio…';
+
+  let transcript='';
+  try{
+    const fd=new FormData();
+    fd.append('file',audioBlob,'speech.webm');
+    fd.append('model','whisper-1');
+    fd.append('language','en');
+    fd.append('response_format','json');
+    const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{
+      method:'POST',headers:{'Authorization':'Bearer '+key},body:fd});
+    if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+    transcript=(await r.json()).text||'';
+  }catch(e){ $('recStatus').textContent='Error al transcribir: '+e.message; $('analyzeBtn').disabled=false; return; }
+
+  // Comparación palabra por palabra
+  const refWords=currentTargetWords();
+  const hypWords=transcript.trim().split(/\s+/).filter(Boolean);
+  const matched=alignWords(refWords,hypWords);
+  resetHighlights();
+  const spans=document.querySelectorAll('#reader .w');
+  let correct=0;
+  matched.forEach((ok,i)=>{ if(ok){spans[i].classList.add('w','good');correct++;} else {spans[i].classList.add('w','bad');} });
+  const acc=Math.round(100*correct/refWords.length);
+
+  // Métricas de fluidez
+  const wpm=recDuration>0?Math.round(hypWords.length/(recDuration/60)):0;
+  let pace='Bien', paceColor='var(--good)';
+  if(wpm<90){pace='Lento';paceColor='var(--warn)';} else if(wpm>170){pace='Rápido';paceColor='var(--warn)';}
+
+  $('mAcc').textContent=acc+'%'; $('mAcc').style.color=acc>=80?'var(--good)':acc>=60?'var(--warn)':'var(--bad)';
+  $('mWpm').textContent=wpm;
+  $('mPace').textContent=pace; $('mPace').style.color=paceColor;
+  $('heard').textContent=transcript||'(no se detectó voz)';
+  $('results').classList.remove('hidden');
+
+  // Feedback de la IA
+  $('recStatus').innerHTML='<span class="spin"></span>Generando consejos…';
+  $('coach').innerHTML='';
+  try{
+    const missed=refWords.filter((w,i)=>!matched[i]);
+    const prompt=`Eres un coach de pronunciación de inglés para un hispanohablante.
+TEXTO OBJETIVO: "${refWords.join(' ')}"
+TRANSCRIPCIÓN de lo que realmente dijo (Whisper): "${transcript}"
+Palabras que no coincidieron: ${missed.slice(0,25).join(', ')||'ninguna'}
+Ritmo: ${wpm} palabras/min (${pace}).
+
+Da feedback breve y accionable EN ESPAÑOL, con estas secciones exactas usando '## ' como encabezado:
+## Sonidos a mejorar
+(2-4 puntos: fonemas específicos que probablemente falló —th, r, vocales largas/cortas, terminaciones -ed, etc.— con la palabra de ejemplo y un truco corto para pronunciarlo)
+## Fluidez y ritmo
+(2-3 frases sobre velocidad, pausas y entonación, considerando el ritmo indicado)
+## Siguiente paso
+(1 consejo concreto para su próxima lectura)
+Sé alentador y concreto. No repitas todo el texto.`;
+    const r=await fetch('https://api.openai.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'gpt-4o-mini',temperature:0.4,
+        messages:[{role:'user',content:prompt}]})});
+    if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+    const txt=(await r.json()).choices[0].message.content;
+    $('coach').innerHTML=renderMd(txt);
+    $('recStatus').innerHTML='✓ Análisis completo.';
+  }catch(e){ $('recStatus').textContent='Transcripción lista, pero falló el consejo: '+e.message; }
+  $('analyzeBtn').disabled=false;
+};
+
+function renderMd(t){
+  return t.split('\n').map(l=>{
+    if(l.startsWith('## ')) return '<h3>'+esc(l.slice(3))+'</h3>';
+    if(l.trim()==='') return '';
+    return '<div>'+esc(l).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</div>';
+  }).join('');
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+</script>
+</body>
+</html>

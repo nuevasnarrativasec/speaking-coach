@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speaking Coach · Práctica de inglés</title>
+<title>Speaking Coach Pro · Práctica de inglés</title>
 <style>
   :root{
     --bg:#0f1420; --panel:#171e2e; --panel2:#1e2740; --line:#2a3550;
@@ -13,20 +13,22 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:radial-gradient(1200px 600px at 20% -10%,#1b2540 0%,var(--bg) 55%);color:var(--txt);min-height:100vh}
-  .wrap{max-width:920px;margin:0 auto;padding:24px 18px 60px}
+  .wrap{max-width:940px;margin:0 auto;padding:24px 18px 60px}
   header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
   header h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.2px}
+  .tag{font-size:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:3px 9px;border-radius:20px;font-weight:700;letter-spacing:.5px}
   .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));
     display:flex;align-items:center;justify-content:center;font-size:20px}
   .sub{color:var(--muted);font-size:13.5px;margin:0 0 20px 50px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
-  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:0 0 12px}
+  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:0 0 12px;display:flex;align-items:center;gap:8px;justify-content:space-between}
   label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
   input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
     border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit}
+  textarea{resize:vertical;min-height:70px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
   .row{display:flex;gap:12px;flex-wrap:wrap}
-  .row>div{flex:1;min-width:180px}
+  .row>div{flex:1;min-width:170px}
   .key-row{display:flex;gap:10px;align-items:flex-end}
   .key-row>div{flex:1}
   button{cursor:pointer;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;
@@ -35,27 +37,27 @@
   .btn:hover{filter:brightness(1.1)}
   .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
   .btn.rec{background:linear-gradient(135deg,#ff5b6b,#ff3b6b)}
+  .btn.sm{padding:7px 12px;font-size:12.5px}
   .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
-  .reader{font-size:22px;line-height:1.7;background:var(--panel2);border-radius:12px;padding:20px;
+  .reader{font-size:22px;line-height:1.75;background:var(--panel2);border-radius:12px;padding:20px;
     border:1px solid var(--line);min-height:90px}
-  .reader .w{padding:1px 2px;border-radius:4px;transition:.1s}
+  .reader .w{padding:1px 3px;border-radius:5px;transition:.1s;cursor:pointer}
+  .reader .w:hover{background:rgba(91,140,255,.18)}
   .w.good{color:var(--good)}
   .w.bad{color:var(--bad);text-decoration:underline;text-decoration-color:var(--bad);text-underline-offset:3px}
   .w.miss{color:var(--warn);text-decoration:line-through;text-decoration-color:var(--warn)}
+  .w.active{background:rgba(255,204,85,.25)}
   .controls{display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
   .pulse{width:11px;height:11px;border-radius:50%;background:var(--bad);display:inline-block;
     animation:pulse 1s infinite;margin-right:7px}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
   .metrics{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
-  .metric{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .metric{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
   .metric .n{font-size:26px;font-weight:800}
-  .metric .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+  .metric .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
   .feedback{white-space:pre-wrap;line-height:1.6;font-size:14.5px}
   .feedback h3{color:var(--accent);font-size:14px;margin:16px 0 6px}
-  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;
-    padding:4px 12px;font-size:12.5px;color:var(--muted);margin:0 6px 6px 0;cursor:pointer}
-  .pill.on{border-color:var(--accent);color:var(--txt)}
-  .legend{font-size:12.5px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap}
+  .legend{font-size:12.5px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
   .legend b{font-weight:600}
   .hidden{display:none}
   .status{font-size:13px;color:var(--muted);min-height:18px}
@@ -64,16 +66,24 @@
   @keyframes sp{to{transform:rotate(360deg)}}
   audio{width:100%;margin-top:12px}
   .small{font-size:12px;color:var(--muted)}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;
+    padding:5px 12px;font-size:13px;margin:0 6px 6px 0;cursor:pointer}
+  .pill:hover{border-color:var(--accent)}
+  .bars{display:flex;gap:6px;align-items:flex-end;height:70px;margin-top:8px}
+  .bar{flex:1;background:linear-gradient(180deg,var(--accent),var(--accent2));border-radius:5px 5px 0 0;min-height:4px;position:relative}
+  .bar span{position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted)}
+  .bar em{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-style:normal}
   a{color:var(--accent)}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="logo">🎙️</div>
-    <h1>Speaking Coach</h1>
+    <h1>Speaking Coach</h1><span class="tag">PRO</span>
   </header>
-  <p class="sub">Lee en voz alta, graba, y recibe corrección de pronunciación con IA — a tu ritmo.</p>
+  <p class="sub">Lee, escucha al nativo, graba y recibe corrección fonética con IA — a tu ritmo.</p>
 
   <!-- API KEY -->
   <div class="card">
@@ -85,12 +95,29 @@
       </div>
       <button class="btn ghost" id="saveKey">Guardar</button>
     </div>
-    <p class="small" id="keyStatus" style="margin:8px 0 0"></p>
+    <div class="row" style="margin-top:12px">
+      <div>
+        <label>Voz del modelo nativo</label>
+        <select id="voice">
+          <option value="alloy">Alloy</option><option value="echo">Echo</option>
+          <option value="fable">Fable</option><option value="onyx">Onyx (grave)</option>
+          <option value="nova">Nova</option><option value="shimmer">Shimmer</option>
+        </select>
+      </div>
+      <div>
+        <label>Precisión del análisis</label>
+        <select id="engine">
+          <option value="audio">Alta — el modelo escucha tu audio (gpt-4o-audio)</option>
+          <option value="text">Rápida — solo texto (gpt-4o-mini)</option>
+        </select>
+      </div>
+    </div>
+    <p class="small" id="keyStatus" style="margin:10px 0 0"></p>
   </div>
 
   <!-- TEXTO -->
   <div class="card">
-    <h2>📖 Texto para practicar</h2>
+    <h2><span>📖 Texto para practicar</span></h2>
     <div class="row" style="margin-bottom:12px">
       <div>
         <label>Nivel</label>
@@ -106,17 +133,27 @@
         <select id="textPick"></select>
       </div>
     </div>
+    <details style="margin-bottom:12px">
+      <summary class="small" style="cursor:pointer">✍️ Usar mi propio texto</summary>
+      <textarea id="customText" placeholder="Pega aquí cualquier texto en inglés…" style="margin-top:8px"></textarea>
+      <button class="btn ghost sm" id="useCustom" style="margin-top:8px">Usar este texto</button>
+    </details>
     <div class="reader" id="reader"></div>
+    <div class="controls" style="margin-top:12px">
+      <button class="btn ghost sm" id="listenBtn">🔊 Escuchar como nativo</button>
+      <span class="status" id="ttsStatus"></span>
+    </div>
     <div class="legend">
-      <span><b style="color:var(--good)">■</b> bien pronunciada</span>
+      <span><b style="color:var(--good)">■</b> bien</span>
       <span><b style="color:var(--bad)">■</b> mejorar</span>
-      <span><b style="color:var(--warn)">■</b> omitida / poco clara</span>
+      <span><b style="color:var(--warn)">■</b> omitida</span>
+      <span>· toca cualquier palabra para <b>oírla</b>; toca una <b style="color:var(--bad)">roja</b> para <b>reintentarla</b></span>
     </div>
   </div>
 
   <!-- GRABAR -->
   <div class="card">
-    <h2>🎤 Tu lectura</h2>
+    <h2><span>🎤 Tu lectura</span></h2>
     <div class="controls">
       <button class="btn rec" id="recBtn">● Grabar</button>
       <button class="btn" id="analyzeBtn" disabled>Analizar pronunciación</button>
@@ -127,11 +164,12 @@
 
   <!-- RESULTADOS -->
   <div class="card hidden" id="results">
-    <h2>📊 Resultados</h2>
+    <h2><span>📊 Resultados</span></h2>
     <div class="metrics">
       <div class="metric"><div class="n" id="mAcc">—</div><div class="l">Precisión</div></div>
       <div class="metric"><div class="n" id="mWpm">—</div><div class="l">Palabras/min</div></div>
       <div class="metric"><div class="n" id="mPace">—</div><div class="l">Ritmo</div></div>
+      <div class="metric"><div class="n" id="mPause">—</div><div class="l">Pausas largas</div></div>
     </div>
     <div style="margin-top:16px">
       <label>Lo que escuchó la IA (transcripción de tu audio):</label>
@@ -139,10 +177,20 @@
     </div>
     <div class="feedback" id="coach" style="margin-top:16px"></div>
   </div>
+
+  <!-- PROGRESO -->
+  <div class="card hidden" id="progress">
+    <h2><span>📈 Tu progreso</span> <button class="btn ghost sm" id="clearProg">Borrar</button></h2>
+    <div class="bars" id="bars"></div>
+    <div style="margin-top:26px">
+      <label>Palabras que se te resisten (toca para oírlas):</label>
+      <div id="weakWords"></div>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ---------- Biblioteca de textos ---------- */
+/* ---------- Biblioteca ---------- */
 const LIBRARY = [
   {level:"Principiante", title:"My Morning", text:"Every morning I wake up early. I drink a cup of coffee and read the news. Then I take a shower and get dressed. I like to walk to work because the fresh air makes me feel awake and happy."},
   {level:"Principiante", title:"The Weather", text:"Today the weather is beautiful. The sky is blue and the sun is warm. There are a few white clouds in the sky. I think it is a perfect day to go outside and enjoy the park with my friends."},
@@ -155,9 +203,9 @@ const LIBRARY = [
   {level:"Avanzado", title:"The Art of Listening", text:"Genuine listening is a remarkably rare skill. It demands that we temporarily suspend our own thoughts, resist the urge to formulate a reply, and remain fully present with another person. Paradoxically, by speaking less and attending more, we often understand far more than we ever could through words alone."}
 ];
 
-/* ---------- Estado ---------- */
-let mediaRecorder=null, chunks=[], audioBlob=null, recStart=0, recDuration=0;
 const $=id=>document.getElementById(id);
+let mediaRecorder=null, chunks=[], audioBlob=null, recStart=0, recDuration=0;
+let currentText="", customActive=false;
 
 /* ---------- API key ---------- */
 (function(){ const k=localStorage.getItem('oai_key'); if(k){$('apiKey').value=k; $('keyStatus').textContent='✓ Clave guardada.';} })();
@@ -166,33 +214,81 @@ $('saveKey').onclick=()=>{
   if(!v){$('keyStatus').textContent='Pega tu clave primero.';return;}
   localStorage.setItem('oai_key',v); $('keyStatus').textContent='✓ Clave guardada en este navegador.';
 };
+const getKey=()=>localStorage.getItem('oai_key');
 
-/* ---------- Poblar biblioteca ---------- */
+/* ---------- Biblioteca ---------- */
 function refreshTexts(){
   const lvl=$('level').value; const pick=$('textPick'); pick.innerHTML='';
-  LIBRARY.filter(t=>lvl==='all'||t.level===lvl).forEach((t,i)=>{
-    const idx=LIBRARY.indexOf(t);
+  LIBRARY.forEach((t,idx)=>{ if(lvl==='all'||t.level===lvl){
     const o=document.createElement('option'); o.value=idx; o.textContent=`${t.title} · ${t.level}`; pick.appendChild(o);
-  });
-  loadText();
+  }});
+  customActive=false; loadText();
 }
 function loadText(){
-  const t=LIBRARY[+$('textPick').value];
-  const words=t.text.split(/\s+/);
-  $('reader').innerHTML=words.map((w,i)=>`<span class="w" data-i="${i}">${w}</span>`).join(' ');
-  $('results').classList.add('hidden'); resetHighlights();
+  if(!customActive) currentText=LIBRARY[+$('textPick').value].text;
+  renderReader(); $('results').classList.add('hidden');
 }
-$('level').onchange=refreshTexts; $('textPick').onchange=loadText;
-refreshTexts();
-
-function currentTargetWords(){ return LIBRARY[+$('textPick').value].text.split(/\s+/); }
+function renderReader(){
+  const words=currentText.split(/\s+/);
+  $('reader').innerHTML=words.map((w,i)=>`<span class="w" data-i="${i}">${w}</span>`).join(' ');
+}
+$('level').onchange=refreshTexts; $('textPick').onchange=()=>{customActive=false;loadText();};
+$('useCustom').onclick=()=>{
+  const t=$('customText').value.trim(); if(!t)return;
+  currentText=t; customActive=true; renderReader(); $('results').classList.add('hidden');
+};
+function targetWords(){ return currentText.split(/\s+/); }
 function resetHighlights(){ document.querySelectorAll('#reader .w').forEach(s=>s.className='w'); }
+
+/* ---------- TTS: escuchar como nativo ---------- */
+async function speak(text,statusEl){
+  const key=getKey(); if(!key){if(statusEl)statusEl.textContent='Guarda tu API key.';return;}
+  try{
+    if(statusEl)statusEl.innerHTML='<span class="spin"></span>Generando voz…';
+    const r=await fetch('https://api.openai.com/v1/audio/speech',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'tts-1',voice:$('voice').value,input:text})});
+    if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+    const url=URL.createObjectURL(await r.blob());
+    await new Audio(url).play();
+    if(statusEl)statusEl.textContent='';
+  }catch(e){ if(statusEl)statusEl.textContent='Error de voz: '+e.message; }
+}
+$('listenBtn').onclick=()=>speak(currentText,$('ttsStatus'));
+
+/* ---------- Clic en palabra: oír o reintentar ---------- */
+$('reader').onclick=async (e)=>{
+  const span=e.target.closest('.w'); if(!span)return;
+  const word=span.textContent;
+  if(span.classList.contains('bad')){ retryWord(span,word); }
+  else { speak(word,$('ttsStatus')); }
+};
+
+async function retryWord(span,word){
+  const key=getKey(); if(!key)return;
+  document.querySelectorAll('#reader .w.active').forEach(s=>s.classList.remove('active'));
+  span.classList.add('active');
+  $('ttsStatus').innerHTML='<span class="pulse"></span>Di solo «'+word+'»… (2s)';
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const rec=new MediaRecorder(stream); const ch=[];
+    rec.ondataavailable=e=>ch.push(e.data);
+    rec.onstop=async ()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const wav=await blobToWav(new Blob(ch,{type:'audio/webm'}));
+      $('ttsStatus').innerHTML='<span class="spin"></span>Comprobando…';
+      const said=await transcribe(wav,false);
+      const ok=norm(said).includes(norm(word))||norm(word).includes(norm(said.trim()));
+      if(ok){ span.className='w good'; $('ttsStatus').textContent='✓ ¡Bien! «'+word+'»'; }
+      else { $('ttsStatus').textContent='Escuché «'+said.trim()+'». Inténtalo otra vez.'; span.classList.remove('active'); }
+    };
+    rec.start(); setTimeout(()=>rec.stop(),2000);
+  }catch(e){ $('ttsStatus').textContent='Mic no disponible: '+e.message; }
+}
 
 /* ---------- Grabación ---------- */
 $('recBtn').onclick=async ()=>{
-  if(mediaRecorder && mediaRecorder.state==='recording'){
-    mediaRecorder.stop(); return;
-  }
+  if(mediaRecorder && mediaRecorder.state==='recording'){ mediaRecorder.stop(); return; }
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     mediaRecorder=new MediaRecorder(stream); chunks=[];
@@ -201,8 +297,7 @@ $('recBtn').onclick=async ()=>{
       recDuration=(Date.now()-recStart)/1000;
       audioBlob=new Blob(chunks,{type:'audio/webm'});
       $('player').src=URL.createObjectURL(audioBlob); $('player').classList.remove('hidden');
-      $('analyzeBtn').disabled=false;
-      $('recBtn').innerHTML='● Grabar otra vez';
+      $('analyzeBtn').disabled=false; $('recBtn').innerHTML='● Grabar otra vez';
       $('recStatus').innerHTML='✓ Grabación lista ('+recDuration.toFixed(1)+'s)';
       stream.getTracks().forEach(t=>t.stop());
     };
@@ -213,98 +308,146 @@ $('recBtn').onclick=async ()=>{
   }catch(e){ $('recStatus').textContent='No pude acceder al micrófono: '+e.message; }
 };
 
-/* ---------- Normalización y diff ---------- */
-function norm(w){ return w.toLowerCase().replace(/[^a-z'áéíóúñ]/gi,''); }
+/* ---------- WAV encoding ---------- */
+async function blobToWav(blob){
+  const buf=await blob.arrayBuffer();
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const ab=await ctx.decodeAudioData(buf);
+  const sr=ab.sampleRate; let d=ab.getChannelData(0);
+  if(ab.numberOfChannels>1){ const c1=ab.getChannelData(1); const m=new Float32Array(d.length);
+    for(let i=0;i<d.length;i++)m[i]=(d[i]+c1[i])/2; d=m; }
+  const out=new ArrayBuffer(44+d.length*2), v=new DataView(out);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+  w(0,'RIFF');v.setUint32(4,36+d.length*2,true);w(8,'WAVE');w(12,'fmt ');
+  v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);
+  v.setUint16(34,16,true);w(36,'data');v.setUint32(40,d.length*2,true);
+  let off=44; for(let i=0;i<d.length;i++){let s=Math.max(-1,Math.min(1,d[i]));v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}
+  return new Blob([v],{type:'audio/wav'});
+}
+function blobToB64(blob){return new Promise(res=>{const r=new FileReader();r.onloadend=()=>res(r.result.split(',')[1]);r.readAsDataURL(blob);});}
 
-// Alineación LCS entre target (ref) e hipótesis (hyp); marca cada palabra ref
+/* ---------- Transcripción ---------- */
+async function transcribe(wavBlob,withWords){
+  const key=getKey();
+  const fd=new FormData();
+  fd.append('file',wavBlob,'speech.wav');
+  fd.append('model','whisper-1'); fd.append('language','en');
+  if(withWords){ fd.append('response_format','verbose_json'); fd.append('timestamp_granularities[]','word'); }
+  else fd.append('response_format','json');
+  const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{
+    method:'POST',headers:{'Authorization':'Bearer '+key},body:fd});
+  if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+  const j=await r.json();
+  return withWords?j:(j.text||'');
+}
+
+/* ---------- Diff LCS ---------- */
+function norm(w){ return (w||'').toLowerCase().replace(/[^a-z'áéíóúñ]/gi,''); }
 function alignWords(refWords, hypWords){
-  const R=refWords.map(norm), H=hypWords.map(norm);
-  const n=R.length,m=H.length;
+  const R=refWords.map(norm), H=hypWords.map(norm), n=R.length, m=H.length;
   const dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
   for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)
     dp[i][j]=R[i-1]===H[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
-  const matched=new Array(n).fill(false);
-  let i=n,j=m;
-  while(i>0&&j>0){
-    if(R[i-1]===H[j-1]){matched[i-1]=true;i--;j--;}
-    else if(dp[i-1][j]>=dp[i][j-1])i--; else j--;
-  }
-  return matched; // true = pronunciada correctamente
+  const matched=new Array(n).fill(false); let i=n,j=m;
+  while(i>0&&j>0){ if(R[i-1]===H[j-1]){matched[i-1]=true;i--;j--;}
+    else if(dp[i-1][j]>=dp[i][j-1])i--; else j--; }
+  return matched;
 }
 
 /* ---------- Analizar ---------- */
 $('analyzeBtn').onclick=async ()=>{
-  const key=localStorage.getItem('oai_key');
-  if(!key){$('recStatus').textContent='Guarda tu API key primero.';return;}
-  if(!audioBlob){return;}
+  const key=getKey(); if(!key){$('recStatus').textContent='Guarda tu API key primero.';return;}
+  if(!audioBlob)return;
   $('analyzeBtn').disabled=true;
-  $('recStatus').innerHTML='<span class="spin"></span>Transcribiendo tu audio…';
+  $('recStatus').innerHTML='<span class="spin"></span>Preparando audio…';
 
-  let transcript='';
+  let wav, vj, transcript='';
   try{
-    const fd=new FormData();
-    fd.append('file',audioBlob,'speech.webm');
-    fd.append('model','whisper-1');
-    fd.append('language','en');
-    fd.append('response_format','json');
-    const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{
-      method:'POST',headers:{'Authorization':'Bearer '+key},body:fd});
-    if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
-    transcript=(await r.json()).text||'';
+    wav=await blobToWav(audioBlob);
+    $('recStatus').innerHTML='<span class="spin"></span>Transcribiendo…';
+    vj=await transcribe(wav,true);
+    transcript=vj.text||'';
   }catch(e){ $('recStatus').textContent='Error al transcribir: '+e.message; $('analyzeBtn').disabled=false; return; }
 
-  // Comparación palabra por palabra
-  const refWords=currentTargetWords();
+  const refWords=targetWords();
   const hypWords=transcript.trim().split(/\s+/).filter(Boolean);
   const matched=alignWords(refWords,hypWords);
   resetHighlights();
   const spans=document.querySelectorAll('#reader .w');
   let correct=0;
-  matched.forEach((ok,i)=>{ if(ok){spans[i].classList.add('w','good');correct++;} else {spans[i].classList.add('w','bad');} });
+  matched.forEach((ok,i)=>{ spans[i].classList.add('w',ok?'good':'bad'); if(ok)correct++; });
   const acc=Math.round(100*correct/refWords.length);
 
-  // Métricas de fluidez
-  const wpm=recDuration>0?Math.round(hypWords.length/(recDuration/60)):0;
-  let pace='Bien', paceColor='var(--good)';
-  if(wpm<90){pace='Lento';paceColor='var(--warn)';} else if(wpm>170){pace='Rápido';paceColor='var(--warn)';}
+  // Ritmo y pausas desde timestamps
+  const words=Array.isArray(vj.words)?vj.words:[];
+  let wpm, longPauses=0;
+  if(words.length>1){
+    const span=words[words.length-1].end-words[0].start;
+    wpm=span>0?Math.round(words.length/(span/60)):0;
+    for(let k=1;k<words.length;k++){ if(words[k].start-words[k-1].end>0.7)longPauses++; }
+  } else { wpm=recDuration>0?Math.round(hypWords.length/(recDuration/60)):0; }
+  let pace='Bien',pc='var(--good)';
+  if(wpm&&wpm<90){pace='Lento';pc='var(--warn)';} else if(wpm>170){pace='Rápido';pc='var(--warn)';}
 
   $('mAcc').textContent=acc+'%'; $('mAcc').style.color=acc>=80?'var(--good)':acc>=60?'var(--warn)':'var(--bad)';
-  $('mWpm').textContent=wpm;
-  $('mPace').textContent=pace; $('mPace').style.color=paceColor;
+  $('mWpm').textContent=wpm||'—';
+  $('mPace').textContent=pace; $('mPace').style.color=pc;
+  $('mPause').textContent=longPauses;
   $('heard').textContent=transcript||'(no se detectó voz)';
   $('results').classList.remove('hidden');
 
-  // Feedback de la IA
+  // Feedback
   $('recStatus').innerHTML='<span class="spin"></span>Generando consejos…';
   $('coach').innerHTML='';
-  try{
-    const missed=refWords.filter((w,i)=>!matched[i]);
-    const prompt=`Eres un coach de pronunciación de inglés para un hispanohablante.
-TEXTO OBJETIVO: "${refWords.join(' ')}"
-TRANSCRIPCIÓN de lo que realmente dijo (Whisper): "${transcript}"
-Palabras que no coincidieron: ${missed.slice(0,25).join(', ')||'ninguna'}
-Ritmo: ${wpm} palabras/min (${pace}).
-
-Da feedback breve y accionable EN ESPAÑOL, con estas secciones exactas usando '## ' como encabezado:
+  const missed=refWords.filter((w,i)=>!matched[i]);
+  const sys=`Eres un coach de pronunciación de inglés para un hispanohablante. Da feedback breve y accionable EN ESPAÑOL con estas secciones exactas, cada una encabezada con '## ':
 ## Sonidos a mejorar
-(2-4 puntos: fonemas específicos que probablemente falló —th, r, vocales largas/cortas, terminaciones -ed, etc.— con la palabra de ejemplo y un truco corto para pronunciarlo)
+(2-4 puntos: fonemas concretos que falló —th, r, vocales largas/cortas, terminaciones -ed, schwa, etc.— con la palabra de ejemplo y un truco corto)
 ## Fluidez y ritmo
-(2-3 frases sobre velocidad, pausas y entonación, considerando el ritmo indicado)
+(2-3 frases sobre velocidad, pausas y entonación)
 ## Siguiente paso
-(1 consejo concreto para su próxima lectura)
-Sé alentador y concreto. No repitas todo el texto.`;
-    const r=await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model:'gpt-4o-mini',temperature:0.4,
-        messages:[{role:'user',content:prompt}]})});
-    if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
-    const txt=(await r.json()).choices[0].message.content;
+(1 consejo concreto)
+Sé alentador y concreto. No repitas el texto entero.`;
+  const ctx=`TEXTO OBJETIVO: "${refWords.join(' ')}"
+TRANSCRIPCIÓN de lo que dijo: "${transcript}"
+Palabras no coincidentes: ${missed.slice(0,25).join(', ')||'ninguna'}
+Ritmo: ${wpm} ppm (${pace}); pausas largas: ${longPauses}.`;
+  try{
+    let txt;
+    if($('engine').value==='audio'){
+      const b64=await blobToB64(wav);
+      txt=await chatAudio(sys,ctx+'\nEscucha el audio adjunto y basa los consejos de sonidos en lo que realmente oyes.',b64);
+    } else {
+      txt=await chatText(sys,ctx);
+    }
     $('coach').innerHTML=renderMd(txt);
     $('recStatus').innerHTML='✓ Análisis completo.';
-  }catch(e){ $('recStatus').textContent='Transcripción lista, pero falló el consejo: '+e.message; }
+  }catch(e){
+    try{ $('coach').innerHTML=renderMd(await chatText(sys,ctx)); $('recStatus').innerHTML='✓ Análisis completo (modo texto).'; }
+    catch(e2){ $('recStatus').textContent='Transcripción lista, pero falló el consejo: '+e2.message; }
+  }
+  saveSession(customActive?'Texto propio':LIBRARY[+$('textPick').value].title,acc,wpm,missed);
   $('analyzeBtn').disabled=false;
 };
+
+async function chatText(sys,user){
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getKey()},
+    body:JSON.stringify({model:'gpt-4o-mini',temperature:0.4,
+      messages:[{role:'system',content:sys},{role:'user',content:user}]})});
+  if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+  return (await r.json()).choices[0].message.content;
+}
+async function chatAudio(sys,user,b64){
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getKey()},
+    body:JSON.stringify({model:'gpt-4o-audio-preview',modalities:['text'],
+      messages:[{role:'system',content:sys},
+        {role:'user',content:[{type:'text',text:user},{type:'input_audio',input_audio:{data:b64,format:'wav'}}]}]})});
+  if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+  return (await r.json()).choices[0].message.content;
+}
 
 function renderMd(t){
   return t.split('\n').map(l=>{
@@ -314,6 +457,31 @@ function renderMd(t){
   }).join('');
 }
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+/* ---------- Progreso ---------- */
+function loadProg(){ try{return JSON.parse(localStorage.getItem('sc_prog')||'{"sessions":[],"weak":{}}');}catch(e){return {sessions:[],weak:{}};} }
+function saveSession(title,acc,wpm,missed){
+  const p=loadProg();
+  p.sessions.push({d:new Date().toISOString().slice(5,10),title,acc,wpm});
+  p.sessions=p.sessions.slice(-12);
+  missed.forEach(w=>{const k=norm(w);if(k.length>2)p.weak[k]=(p.weak[k]||0)+1;});
+  localStorage.setItem('sc_prog',JSON.stringify(p));
+  renderProg();
+}
+function renderProg(){
+  const p=loadProg();
+  if(!p.sessions.length){ $('progress').classList.add('hidden'); return; }
+  $('progress').classList.remove('hidden');
+  $('bars').innerHTML=p.sessions.map(s=>
+    `<div class="bar" style="height:${Math.max(4,s.acc)}%" title="${s.title}"><span>${s.acc}%</span><em>${s.d}</em></div>`).join('');
+  const weak=Object.entries(p.weak).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  $('weakWords').innerHTML=weak.length?weak.map(([w,c])=>`<span class="pill" data-w="${w}">${w} <b style="color:var(--muted)">×${c}</b></span>`).join(''):'<span class="small">Aún ninguna. ¡Buen trabajo!</span>';
+}
+$('weakWords').onclick=e=>{const p=e.target.closest('.pill');if(p)speak(p.dataset.w,$('ttsStatus'));};
+$('clearProg').onclick=()=>{ if(confirm('¿Borrar todo tu progreso?')){localStorage.removeItem('sc_prog');renderProg();} };
+
+/* ---------- Init ---------- */
+refreshTexts(); renderProg();
 </script>
 </body>
 </html>

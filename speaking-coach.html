@@ -75,6 +75,14 @@
   .bar em{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);font-style:normal}
   a{color:var(--accent)}
   .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  .bub{max-width:82%;padding:11px 14px;border-radius:14px;font-size:14.5px;line-height:1.5;position:relative}
+  .bub.tutor{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .bub.me{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent2));border-bottom-right-radius:4px}
+  .bub .replay{position:absolute;top:6px;right:8px;font-size:12px;opacity:.55;cursor:pointer}
+  .bub .replay:hover{opacity:1}
+  .bub .tip{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px;color:var(--warn)}
+  .bub.me .who,.bub.tutor .who{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;opacity:.7;margin-bottom:3px}
+  .btn.rec.talking{animation:pulse 1s infinite}
 </style>
 </head>
 <body>
@@ -160,6 +168,42 @@
       <span class="status" id="recStatus"></span>
     </div>
     <audio id="player" controls class="hidden"></audio>
+  </div>
+
+  <!-- CONVERSACIÓN -->
+  <div class="card" id="convCard">
+    <h2><span>🗣️ Conversación con tu tutor</span></h2>
+    <div class="row" style="margin-bottom:12px">
+      <div>
+        <label>Escenario</label>
+        <select id="convScenario">
+          <option value="free">Charla libre</option>
+          <option value="interview">Entrevista de trabajo</option>
+          <option value="restaurant">En un restaurante</option>
+          <option value="travel">Viaje / aeropuerto</option>
+          <option value="shopping">De compras</option>
+          <option value="smalltalk">Conocer gente (small talk)</option>
+        </select>
+      </div>
+      <div>
+        <label>Nivel del tutor</label>
+        <select id="convLevel">
+          <option value="Principiante">Principiante — despacio y sencillo</option>
+          <option value="Intermedio" selected>Intermedio</option>
+          <option value="Avanzado">Avanzado — ritmo nativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="convStart">▶ Empezar conversación</button>
+      <button class="btn rec hidden" id="convTalk">🎤 Mantén para hablar</button>
+      <button class="btn ghost sm hidden" id="convEnd">Terminar</button>
+      <label class="pill hidden" id="convCorrToggle" style="cursor:pointer"><input type="checkbox" id="convCorr" checked style="width:auto;margin-right:6px;vertical-align:-1px">Correcciones</label>
+      <span class="status" id="convStatus"></span>
+    </div>
+    <div id="convThread" style="margin-top:14px;display:flex;flex-direction:column;gap:10px"></div>
+    <div class="feedback hidden" id="convFeedback" style="margin-top:16px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px"></div>
+    <p class="hint">Mantén pulsado el botón mientras hablas y suéltalo al terminar. Al terminar, el tutor te dará un informe de feedback.</p>
   </div>
 
   <!-- RESULTADOS -->
@@ -479,6 +523,178 @@ function renderProg(){
 }
 $('weakWords').onclick=e=>{const p=e.target.closest('.pill');if(p)speak(p.dataset.w,$('ttsStatus'));};
 $('clearProg').onclick=()=>{ if(confirm('¿Borrar todo tu progreso?')){localStorage.removeItem('sc_prog');renderProg();} };
+
+/* ---------- Conversación por voz (por turnos) ---------- */
+const SCENARIOS={
+  free:{es:"Charla libre",prompt:"Have a friendly, open conversation. Ask about their day, hobbies, opinions."},
+  interview:{es:"Entrevista de trabajo",prompt:"You are a friendly hiring manager conducting a casual job interview. Ask typical interview questions one at a time."},
+  restaurant:{es:"En un restaurante",prompt:"You are a waiter at a restaurant. Help the student order food, recommend dishes, and chat naturally."},
+  travel:{es:"Viaje / aeropuerto",prompt:"You are an airport/travel agent helping the student check in, ask about their trip, and give directions."},
+  shopping:{es:"De compras",prompt:"You are a shop assistant. Help the student find items, talk about sizes, prices and preferences."},
+  smalltalk:{es:"Conocer gente",prompt:"You just met the student at a social event. Make friendly small talk to get to know them."}
+};
+const LEVEL_STYLE={
+  Principiante:"Use very simple words and short sentences. Speak slowly and clearly. Be patient.",
+  Intermedio:"Use everyday vocabulary and natural but clear sentences.",
+  Avanzado:"Speak at a natural native pace with rich vocabulary and idioms."
+};
+let convActive=false, convMessages=[], convRec=null, convChunks=[], convBusy=false;
+
+function convSystem(){
+  const sc=SCENARIOS[$('convScenario').value], lvl=$('convLevel').value;
+  return `You are a warm, encouraging English conversation tutor for a Spanish speaker. Scenario: ${sc.prompt}
+Level: ${lvl}. ${LEVEL_STYLE[lvl]}
+Rules:
+- ALWAYS reply in English only, in the REPLY section. Keep replies to 1-3 sentences and end with a question to keep the conversation going.
+- Stay fully in character for the scenario.
+- If the student made a clear grammar or word-choice mistake, add ONE short gentle correction in Spanish in the TIP section (mention the fix, e.g. «Dices "I have 25 years" → di "I am 25 years old"»). If there was no notable mistake, leave the TIP empty.
+Respond in EXACTLY this format, nothing else:
+REPLY: <your English reply>
+TIP: <optional short correction in Spanish, or leave blank>`;
+}
+
+function addBubble(role,text,tip){
+  const d=document.createElement('div'); d.className='bub '+(role==='tutor'?'tutor':'me');
+  const who=document.createElement('div'); who.className='who'; who.textContent=role==='tutor'?'Tutor':'Tú';
+  d.appendChild(who);
+  const body=document.createElement('div'); body.textContent=text; d.appendChild(body);
+  if(role==='tutor'){
+    const r=document.createElement('span'); r.className='replay'; r.textContent='🔊'; r.title='Escuchar otra vez';
+    r.onclick=()=>speak(text,$('convStatus')); d.appendChild(r);
+  }
+  if(tip){ const t=document.createElement('div'); t.className='tip'; t.textContent='💡 '+tip; d.appendChild(t); }
+  $('convThread').appendChild(d); d.scrollIntoView({behavior:'smooth',block:'end'});
+  return d;
+}
+
+function parseReply(raw){
+  let reply=raw.trim(), tip='';
+  const mR=raw.match(/REPLY:\s*([\s\S]*?)(?:\nTIP:|$)/i);
+  const mT=raw.match(/TIP:\s*([\s\S]*)$/i);
+  if(mR)reply=mR[1].trim();
+  if(mT)tip=mT[1].trim();
+  if(!$('convCorr').checked)tip='';
+  if(/^\s*(n\/?a|ninguna|none|-)?\s*$/i.test(tip))tip='';
+  return {reply,tip};
+}
+
+async function convChat(){
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getKey()},
+    body:JSON.stringify({model:'gpt-4o-mini',temperature:0.7,messages:convMessages})});
+  if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
+  return (await r.json()).choices[0].message.content;
+}
+
+async function convTutorTurn(){
+  convBusy=true; $('convStatus').innerHTML='<span class="spin"></span>El tutor está pensando…';
+  try{
+    const raw=await convChat();
+    convMessages.push({role:'assistant',content:raw});
+    const {reply,tip}=parseReply(raw);
+    addBubble('tutor',reply,tip);
+    $('convStatus').innerHTML='<span class="spin"></span>Hablando…';
+    await speak(reply,null);
+    $('convStatus').textContent='Tu turno — mantén pulsado 🎤 para hablar.';
+  }catch(e){ $('convStatus').textContent='Error: '+e.message; }
+  convBusy=false;
+}
+
+$('convStart').onclick=async ()=>{
+  if(!getKey()){$('convStatus').textContent='Guarda tu API key primero (arriba).';return;}
+  convActive=true; convThreadReset();
+  convMessages=[{role:'system',content:convSystem()},
+    {role:'user',content:'Greet me and start the conversation for this scenario.'}];
+  $('convFeedback').classList.add('hidden'); $('convFeedback').innerHTML='';
+  $('convStart').classList.add('hidden');
+  $('convTalk').classList.remove('hidden'); $('convEnd').classList.remove('hidden');
+  $('convCorrToggle').classList.remove('hidden');
+  $('convScenario').disabled=true; $('convLevel').disabled=true;
+  await convTutorTurn();
+};
+function convThreadReset(){ $('convThread').innerHTML=''; }
+
+$('convEnd').onclick=async ()=>{
+  convActive=false;
+  if(convRec&&convRec.state==='recording')convRec.stop();
+  $('convTalk').classList.add('hidden'); $('convEnd').classList.add('hidden'); $('convCorrToggle').classList.add('hidden');
+  $('convScenario').disabled=false; $('convLevel').disabled=false;
+  await convGiveFeedback();
+  $('convStart').classList.remove('hidden'); $('convStart').textContent='▶ Empezar de nuevo';
+};
+
+async function convGiveFeedback(){
+  const userTurns=convMessages.filter((m,i)=>m.role==='user'&&i>1).map(m=>m.content);
+  if(!userTurns.length){ $('convStatus').textContent='Conversación terminada (sin turnos que evaluar).'; return; }
+  // Correcciones que ya salieron durante la charla
+  const tips=convMessages.filter(m=>m.role==='assistant').map(m=>parseReplyRaw(m.content).tip).filter(Boolean);
+  $('convStatus').innerHTML='<span class="spin"></span>Preparando tu feedback…';
+  const sys=`Eres un profesor de inglés que acaba de terminar una conversación hablada con un estudiante hispanohablante. Analiza SOLO lo que dijo el estudiante (transcrito de su voz). Da un informe breve, cálido y accionable EN ESPAÑOL con estas secciones exactas, cada una encabezada con '## ':
+## Nivel aproximado
+(estima su nivel: A1–C1, con una frase de justificación)
+## Lo que hiciste bien
+(2-3 puntos concretos: vocabulario, fluidez, estructuras que usó bien)
+## Errores a corregir
+(3-5 puntos: gramática, vocabulario o expresiones. Muestra «lo que dijo → mejor así» con ejemplos reales de sus frases)
+## Vocabulario para subir de nivel
+(3-4 palabras o expresiones más naturales que podría haber usado)
+## Siguiente paso
+(1 consejo concreto para su próxima práctica)
+Sé alentador y específico. Nota: no puedes evaluar pronunciación porque solo tienes la transcripción; céntrate en gramática, vocabulario y fluidez.`;
+  const user=`ESCENARIO: ${SCENARIOS[$('convScenario').value].es}
+LO QUE DIJO EL ESTUDIANTE (en orden):
+${userTurns.map((t,i)=>`${i+1}. "${t}"`).join('\n')}
+${tips.length?`\nCorrecciones que ya se le señalaron durante la charla: ${tips.join(' | ')}`:''}`;
+  try{
+    const txt=await chatText(sys,user);
+    $('convFeedback').innerHTML='<h3 style="margin-top:0;color:var(--accent)">📋 Informe de tu conversación</h3>'+renderMd(txt);
+    $('convFeedback').classList.remove('hidden');
+    $('convFeedback').scrollIntoView({behavior:'smooth',block:'nearest'});
+    $('convStatus').textContent='✓ Informe listo abajo.';
+  }catch(e){ $('convStatus').textContent='No se pudo generar el feedback: '+e.message; }
+}
+
+function parseReplyRaw(raw){
+  let tip=''; const mT=raw.match(/TIP:\s*([\s\S]*)$/i);
+  if(mT)tip=mT[1].trim();
+  if(/^\s*(n\/?a|ninguna|none|-)?\s*$/i.test(tip))tip='';
+  return {tip};
+}
+
+async function startTalking(){
+  if(!convActive||convBusy)return;
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    convRec=new MediaRecorder(stream); convChunks=[];
+    convRec.ondataavailable=e=>convChunks.push(e.data);
+    convRec.onstop=async ()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      $('convTalk').classList.remove('talking');
+      if(!convChunks.length)return;
+      $('convStatus').innerHTML='<span class="spin"></span>Transcribiendo…';
+      try{
+        const wav=await blobToWav(new Blob(convChunks,{type:'audio/webm'}));
+        const said=(await transcribe(wav,false)).trim();
+        if(!said){$('convStatus').textContent='No te escuché. Inténtalo otra vez.';return;}
+        addBubble('me',said,'');
+        convMessages.push({role:'user',content:said});
+        await convTutorTurn();
+      }catch(e){ $('convStatus').textContent='Error: '+e.message; }
+    };
+    convRec.start();
+    $('convTalk').classList.add('talking');
+    $('convStatus').innerHTML='<span class="pulse"></span>Escuchando… habla ahora.';
+  }catch(e){ $('convStatus').textContent='Mic no disponible: '+e.message; }
+}
+function stopTalking(){ if(convRec&&convRec.state==='recording')convRec.stop(); }
+
+// Mantener pulsado (ratón y táctil)
+const talkBtn=$('convTalk');
+talkBtn.addEventListener('mousedown',startTalking);
+talkBtn.addEventListener('mouseup',stopTalking);
+talkBtn.addEventListener('mouseleave',stopTalking);
+talkBtn.addEventListener('touchstart',e=>{e.preventDefault();startTalking();},{passive:false});
+talkBtn.addEventListener('touchend',e=>{e.preventDefault();stopTalking();},{passive:false});
 
 /* ---------- Init ---------- */
 refreshTexts(); renderProg();

@@ -285,6 +285,12 @@ function targetWords(){ return currentText.split(/\s+/); }
 function resetHighlights(){ document.querySelectorAll('#reader .w').forEach(s=>s.className='w'); }
 
 /* ---------- TTS: escuchar como nativo ---------- */
+const SILENT_WAV='data:audio/wav;base64,UklGRmQBAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YUABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+let sharedAudio=null;
+function getAudio(){ if(!sharedAudio)sharedAudio=new Audio(); return sharedAudio; }
+// Desbloquea el autoplay reproduciendo un silencio dentro de un gesto del usuario
+function primeAudio(){ try{ const a=getAudio(); a.src=SILENT_WAV; a.play().catch(()=>{}); }catch(e){} }
+
 async function speak(text,statusEl){
   const key=getKey(); if(!key){if(statusEl)statusEl.textContent='Guarda tu API key.';return;}
   try{
@@ -294,7 +300,9 @@ async function speak(text,statusEl){
       body:JSON.stringify({model:'tts-1',voice:$('voice').value,input:text})});
     if(!r.ok){throw new Error((await r.json()).error?.message||r.status);}
     const url=URL.createObjectURL(await r.blob());
-    await new Audio(url).play();
+    const a=getAudio(); a.src=url;
+    await new Promise((res)=>{ a.onended=res; a.onerror=res; a.play().catch(res); });
+    URL.revokeObjectURL(url);
     if(statusEl)statusEl.textContent='';
   }catch(e){ if(statusEl)statusEl.textContent='Error de voz: '+e.message; }
 }
@@ -602,6 +610,7 @@ async function convTutorTurn(){
 
 $('convStart').onclick=async ()=>{
   if(!getKey()){$('convStatus').textContent='Guarda tu API key primero (arriba).';return;}
+  primeAudio();
   convActive=true; convThreadReset();
   convMessages=[{role:'system',content:convSystem()},
     {role:'user',content:'Greet me and start the conversation for this scenario.'}];
@@ -663,6 +672,7 @@ function parseReplyRaw(raw){
 
 async function startTalking(){
   if(!convActive||convBusy)return;
+  primeAudio();
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     convRec=new MediaRecorder(stream); convChunks=[];
